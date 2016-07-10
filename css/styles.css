@@ -1,0 +1,137 @@
+body {
+	margin: 0;
+	padding: 0;
+}
+
+#preview{
+	background-image: url('../icons/wink.svg');
+	background-position: 0 center;
+    background-repeat: no-repeat;
+    border: 2px solid transparent;
+    border-radius: 0.25em;
+    cursor: pointer;
+    font-size: 100%;
+    height: 44px;
+    margin: 0;
+    max-height: 100%;
+    padding: 0;
+    overflow: 'hidden';
+    text-indent: -999em;
+    width: 46px;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+}
+
+#page-title{
+	text-transform: capitalize;
+	color: #fff;
+	text-align: center;
+	padding: 12px 0;
+	margin-bottom:0;
+}
+
+#page-title.teacher-color{
+	background-color: #00BFFF;
+}
+#page-title.student-color{
+	background-color: #20B2AA;
+}
+.student-color{
+	background-color: #20B2AA;
+}
+.student-color:hover{
+	background-color: #20C2AA;
+}
+.form-group{
+	padding: 0;
+	margin: 0;
+}
+
+.hideShowPassword-toggle-hide {
+    background-position: -44px center !important;
+}
+
+#content-center{
+	width: 60%;
+	margin: 0 auto;
+}
+
+input[type="text"]{
+	border-radius: 0 !important;
+}
+
+#sentence{
+	height: 200px !important;
+	color: #bbb;
+}
+
+#sentence:focus{
+	color: #333;
+}
+
+.blank {
+	border: 1px solid #ccc;
+	width: 60px;
+	height: 25px;
+	padding: 5px;
+	margin-left: 5px;
+	margin-right: 5px;
+	overflow: hidden;
+	font-size: 10px;
+}
+
+.form-control{
+	border-radius: 0 !important;
+}
+.container {
+	width: 100%;
+}
+
+.footer_controls{
+	padding-top:3px;
+}
+
+.custom-select {
+	padding: 6px;
+	width: 150px;
+	display: block;
+	float: left;
+}
+
+.button_group.col-md-4{
+	padding: 0 !important;
+	text-align: right;
+}
+
+button {
+	border-radius: 0 !important;
+}
+
+#student_view > p {
+	margin:0;
+}
+
+#student_view .instr{
+	border: 1px solid #ccc;
+    padding: 8px 5px;
+}
+
+#student_view .sentence{
+	border: 1px solid #ccc;
+    padding: 8px 5px;
+    height: 200px;
+}
+
+.footer_controls button:first-child {
+	margin-right: 5px;
+}
+
+.correctAnswer{
+	border: 2px solid #90EE90;
+	color: #90EE90;
+}
+
+.wrongAnswer {
+	border: 2px solid red;
+	color: red;
+}
