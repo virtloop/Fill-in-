@@ -135,3 +135,9 @@ button {
 	border: 2px solid red;
 	color: red;
 }
+
+@media only screen and (max-width: 579px) {
+	#content-center{
+		width: 100%;
+	}
+}
