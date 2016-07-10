@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Project X</title>
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="css/styles.css">
+	</head>
+	<body>
+		<header>
+			<nav class="navbar navbar-default">
+			  <div class="container-fluid">
+			    <!-- Brand and toggle get grouped for better mobile display -->
+			    <div class="navbar-header">
+			      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+			        <span class="sr-only">Toggle navigation</span>
+			        <span class="icon-bar"></span>
+			        <span class="icon-bar"></span>
+			        <span class="icon-bar"></span>
+			      </button>
+			      <a class="navbar-brand" href="#">Project X</a>
+			    </div>
+
+			    <!-- Collect the nav links, forms, and other content for toggling -->
+			    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			      <ul class="nav navbar-nav navbar-right">
+			        <li class="active">
+			        	<a href="#" title="Preview" id="preview">
+			        		
+			        	</a>
+			        </li>
+			      </ul>
+			     
+			     
+			    </div><!-- /.navbar-collapse -->
+			  </div><!-- /.container-fluid -->
+			</nav>
+		</header>
+		<div id="content-center">
+			<div class="container">
+	            <h4 id="page-title" class="teacher-color"></h4>
+	            <div id="content">
+	            	<div id="teacher_view">
+		       			<div class="instr form-group">
+		       				<input type="text" class="form-control" id="instr_teacher" placeholder="Type here the work instruction" autocomplete="off" />
+		       			</div>
+
+		       			<div class="sentence form-group">
+		       				<div class="form-control" data-placeholder="Start typing here the text. Add blanks using New Input button bellow" id="sentence"></div>
+		       			</div>
+
+		       			<div class="footer_controls">
+		       				<select class="custom-select col-md-8" id="attempts">
+		       					<option value="0">Attempts</option>
+		       					<option value="1">1</option>
+		       					<option value="2">2</option>
+		       					<option value="3">3</option>
+		       					<option value="4">4</option>
+		       					<option value="5">5</option>
+		       				</select>
+
+		       				<div class="button_group col-md-4 pull-right">
+		       					<button class="btn btn-primary" id="new">New Input</button>
+		       					<button class="btn btn-danger" id="remove">Delete Input</button>
+		       				</div>
+		       			</div>
+		       		</div>  	
+	            </div>
+	        </div>
+        </div>
+        
+        <script type="text/template" id="feedback_modal">
+        	<div class="modal fade" id="myModal">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			        <h4 class="modal-title"></h4>
+			      </div>
+			      <div class="modal-body">
+			        <p><%= score =></p>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			      </div>
+			    </div><!-- /.modal-content -->
+			  </div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+        </script>
+
+		<script type="text/javascript" src="js/vendor/jquery.min.js"></script>
+		<script type="text/javascript" src="js/vendor/underscore.js"></script>
+		<script type="text/javascript" src="js/vendor/backbone.js"></script>
+		<script type="text/javascript" src="js/vendor/bootstrap.min.js"></script>
+		<script type="text/javascript" src="js/main.js"></script>
+		<script type="text/javascript" src="js/router/router.js"></script>
+		<script type="text/javascript" src="js/views/app_view.js"></script>
+		<script type="text/javascript" src="js/models/solution.js"></script>
+		<script type="text/javascript" src="js/collections/solutions.js"></script>
+		<script type="text/javascript">
+			
+			    new App.Router;
+				Backbone.history.start();
+
+				App.solutions = new App.Collections.Solutions;
+				App.model = new App.Models.Solution;
+				new App.Views.App({collection: App.solutions});
+				/*var teacher = new App.Views.App;
+
+				teacher.render();*/
+		</script>
+	</body>
+</html>
