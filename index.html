@@ -102,15 +102,13 @@
 		<script type="text/javascript" src="js/collections/solutions.js"></script>
 		<script type="text/javascript">
 			
-			    new App.Router;
-				Backbone.history.start();
+		    new App.Router;
+			Backbone.history.start();
 
-				App.solutions = new App.Collections.Solutions;
-				App.model = new App.Models.Solution;
-				new App.Views.App({collection: App.solutions});
-				/*var teacher = new App.Views.App;
-
-				teacher.render();*/
+			App.solutions = new App.Collections.Solutions;
+			App.model = new App.Models.Solution;
+			new App.Views.App({collection: App.solutions});
+			
 		</script>
 	</body>
 </html>
