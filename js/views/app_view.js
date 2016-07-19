@@ -41,15 +41,14 @@ App.Views.App = Backbone.View.extend({
 
 	initialize: function() {
 		"use strict";
-		var teacherView = new App.Views.Teacher({collection: App.solutions});
+		var teacherView = new App.Views.Teacher({collection: App.solutions, model_settings: App.model_default});
 		this.title_container.html(teacherView.title).addClass(this.MODE.teacher.color_class);
-
-		console.log(App.model)
-
-		teacherView.render();
-		$('.button_group').html('');
-		this.writeButtons(this.MODE.teacher.buttons);
+		
+		teacherView.render(this.MODE.teacher.buttons);
+		
 	},
+	
+	
 
 	preview_mode: function (e) {
 		"use strict";
@@ -58,43 +57,33 @@ App.Views.App = Backbone.View.extend({
 
 		if( !this.MODE.init_mode ) {
 			e.preventDefault();
+			$('.button_group').html('');
 			var studentView = new App.Views.Student({collection: App.solutions});
-			studentView.render();
+			studentView.render(this.MODE.student.buttons);
 			this.MODE.teacher.selector.html('');
 
 			//changing page title
 			this.title_container.html(studentView.title).removeClass(this.MODE.teacher.color_class).addClass(this.MODE.student.color_class);
-			$('.button_group').html('');
-
-			//writing buttons
-			this.writeButtons(this.MODE.student.buttons);
+			
+			
 			$('#preview').addClass('hideShowPassword-toggle-hide').attr('title', 'Edit Mode');
 
 		} else {
+			$('.button_group').html('');
 			var teacherView = new App.Views.Teacher({collection: App.solutions});
 			
-			teacherView.render();
+			teacherView.render(this.MODE.teacher.buttons);
 			this.MODE.student.selector.html('');
 
 			//changing page title
 			this.title_container.html(teacherView.title).removeClass(this.MODE.student.color_class).addClass(this.MODE.teacher.color_class);
-			$('.button_group').html('');
+			
 
-			//writing buttons
-			this.writeButtons(this.MODE.teacher.buttons);
 			$('#preview').removeClass('hideShowPassword-toggle-hide').attr('title', 'Preview Mode');
 		}
 	},
 
-	writeButtons: function (btnsObj) {
-		"use strict";
-		$('.footer_controls').html('<button id="preview" title="Preview Mode" class="btn btn-default"></button><div class="button_group col-md-4"></div>');
-
-		$.each(btnsObj, function (){
-			
-			$('.button_group').append('<buttons class="'+ this.class +'" >'+this.name+'</buttons>');
-		});
-	}
+	
 });
 
 
@@ -116,12 +105,37 @@ App.Views.Teacher = Backbone.View.extend({
 		'blur #sentence': 'saveSentence'
 	},
 
-	render: function () {
+	render: function (btnObj) {
 		"use strict";
 		this.writeInstrInput(this.container);
 		this.writeTextArea(this.container);
-		
+		this.writeButtons(btnObj);
+		this.writeSelectAttempts( $('.footer_controls'), App.model_default.get('max_attempts') );
+	},
 
+	writeSelectAttempts: function ( container, no_attempts ) {
+		"use strict";
+		var i, selectContainer;
+		$(container).append('<select id="attempts" class="custom-select"></select>');
+		selectContainer = $('#attempts');
+
+		for( i = 0; i <= no_attempts; i++){
+			if( i === 0 ) {
+				selectContainer.append('<option value="'+ i +'">Attempts</option>');
+			}else{
+				selectContainer.append('<option value="'+ i +'">'+i+'</option>');	
+			}
+			
+		}
+	},
+
+	writeButtons: function (btnsObj) {
+		"use strict";
+		$('.footer_controls').html('<button id="preview" title="Preview Mode" class="btn btn-default"></button><div class="button_group col-md-4"></div>');
+		$.each(btnsObj, function (){
+			
+			$('.button_group').append('<buttons class="'+ this.class +'" >'+this.name+'</buttons>');
+		});
 	},
 
 	writeInstrInput: function (container) {
@@ -273,10 +287,9 @@ App.Views.Student = Backbone.View.extend({
 		this.attempt = this.currentAttempt = $(e.currentTarget).val();
 	},
 
-	render: function() {
+	render: function(btnObj) {
 		'use strict';
 		var sentence = '';
-		
 		if( $('#instr_teacher').val() !== '' ) {
 			$('#student_view').append('<p class="instr"><strong>'+ $('#instr_teacher').val() +'</strong></p>');
 		}
@@ -288,17 +301,17 @@ App.Views.Student = Backbone.View.extend({
 		}else{
 			$('#student_view').append('There is no text to show');
 		}
-		//$('#teacher_view').html('');
-		/*if($('#student_view').is(':visible')){
-			$('.footer_controls').addClass('pull-right');
-			//$('#student_view').append('<div class="footer_controls pull-right"></div>');
-			$('.button_group').html('');
-			$('.button_group').append('<button title="Preview Mode" id="preview" class="btn btn-default"></button>');
-			$('.button_group').append('<button class="btn btn-primary disabled" id="view_solution">Solution</button>');
-			$('.button_group').append('<button class="btn btn-primary student-color" id="check">Check</button>');
-			$('.button_group').append('<button class="btn btn-primary student-color" id="retry">Retry</button>');
-			$('#retry').hide();
-		}*/
+		this.writeButtons(btnObj);
+	},
+
+	writeButtons: function (btnsObj) {
+		"use strict";
+		$('.footer_controls').html('<button id="preview" title="Preview Mode" class="btn btn-default"></button><div class="button_group col-md-4"></div>');
+
+		$.each(btnsObj, function (){
+			
+			$('.button_group').append('<buttons class="'+ this.class +'" >'+this.name+'</buttons>');
+		});
 	},
 
 	check_response: function () {

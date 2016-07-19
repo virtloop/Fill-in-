@@ -97,8 +97,9 @@
 			Backbone.history.start();
 
 			App.solutions = new App.Collections.Solutions;
-			App.model = new App.Models.Solution;
-			new App.Views.App({collection: App.solutions, model: App.model});
+			App.model_solution = new App.Models.Solution;
+			App.model_default  = new App.Models.FIB;
+			new App.Views.App({collection: App.solutions, model: App.model_solution, model_default: App.model_default});
 			
 		</script>
 	</body>

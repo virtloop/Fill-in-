@@ -1,14 +1,20 @@
 App.Models.Solution = Backbone.Model.extend({
 	defaults: {
-		id: '',
-		solution: []
-	},
-	
-	validate: function ( attrs ) {
-		"use strict";
-		if( !attrs.id || !attrs.solution ){
-			return 'You must enter a solution for this blank input';
+		
+		solution: {
+			id: '',
+			value: []
 		}
 	}
-
 });
+
+App.Models.FIB = Backbone.Model.extend({
+	defaults: {
+		instr_text     : '',
+		sentence_text  : '',
+		max_attempts   : 5,
+		choosen_attempt: 0
+	}
+});
+
+
