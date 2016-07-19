@@ -26,9 +26,7 @@
 			    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 			      <ul class="nav navbar-nav navbar-right">
 			        <li class="active">
-			        	<a href="#" title="Preview" id="preview">
-			        		
-			        	</a>
+			        	
 			        </li>
 			      </ul>
 			     
@@ -37,38 +35,30 @@
 			  </div><!-- /.container-fluid -->
 			</nav>
 		</header>
-		<div id="content-center">
-			<div class="container">
-	            <h4 id="page-title" class="teacher-color"></h4>
-	            <div id="content">
-	            	<div id="teacher_view">
-		       			<div class="instr form-group">
-		       				<input type="text" class="form-control" id="instr_teacher" placeholder="Type here the work instruction" autocomplete="off" />
-		       			</div>
+		<div class="container">
 
-		       			<div class="sentence form-group">
-		       				<div class="form-control" data-placeholder="Start typing here the text. Add blanks using New Input button bellow" id="sentence"></div>
-		       			</div>
+	        <h4 id="page-title"></h4>
+	        <div id="content">
+	        	<div id="teacher_view"></div>
+	       		<div id="student_view"></div>
+	       		<div class="footer_controls">
+       				<select class="custom-select col-md-8" id="attempts">
+       					<option value="0">Attempts</option>
+       					<option value="1">1</option>
+       					<option value="2">2</option>
+       					<option value="3">3</option>
+       					<option value="4">4</option>
+       					<option value="5">5</option>
+       				</select>
 
-		       			<div class="footer_controls">
-		       				<select class="custom-select col-md-8" id="attempts">
-		       					<option value="0">Attempts</option>
-		       					<option value="1">1</option>
-		       					<option value="2">2</option>
-		       					<option value="3">3</option>
-		       					<option value="4">4</option>
-		       					<option value="5">5</option>
-		       				</select>
-
-		       				<div class="button_group col-md-4 pull-right">
-		       					<button class="btn btn-primary" id="new">New Input</button>
-		       					<button class="btn btn-danger" id="remove">Delete Input</button>
-		       				</div>
-		       			</div>
-		       		</div>  	
-	            </div>
+       				<div class="button_group col-md-4 pull-right">
+       					<button id="preview" title="Preview Mode" class="btn btn-default"></button>
+       					<button class="btn btn-primary" id="new">New Input</button>
+       					<button class="btn btn-danger" id="remove">Delete Input</button>
+       				</div>
+       			</div>
 	        </div>
-        </div>
+	    </div>
         
         <script type="text/template" id="feedback_modal">
         	<div class="modal fade" id="myModal">
@@ -96,13 +86,13 @@
 		<script type="text/javascript" src="js/vendor/backbone.js"></script>
 		<script type="text/javascript" src="js/vendor/bootstrap.min.js"></script>
 		<script type="text/javascript" src="js/main.js"></script>
-		<script type="text/javascript" src="js/router/router.js"></script>
+		<!-- <script type="text/javascript" src="js/router/router.js"></script> -->
 		<script type="text/javascript" src="js/views/app_view.js"></script>
 		<script type="text/javascript" src="js/models/solution.js"></script>
 		<script type="text/javascript" src="js/collections/solutions.js"></script>
 		<script type="text/javascript">
 			
-		    new App.Router;
+		    //new App.Router;
 			Backbone.history.start();
 
 			App.solutions = new App.Collections.Solutions;

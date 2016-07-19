@@ -11,7 +11,7 @@ body {
     border-radius: 0.25em;
     cursor: pointer;
     font-size: 100%;
-    height: 44px;
+    height: 34px;
     margin: 0;
     max-height: 100%;
     padding: 0;
@@ -20,6 +20,10 @@ body {
     width: 46px;
     -moz-appearance: none;
     -webkit-appearance: none;
+}
+
+.hideShowPassword-toggle-hide {
+    background-position: -44px center !important;
 }
 
 #page-title{
@@ -33,27 +37,22 @@ body {
 #page-title.teacher-color{
 	background-color: #00BFFF;
 }
+
 #page-title.student-color{
 	background-color: #20B2AA;
 }
+
 .student-color{
 	background-color: #20B2AA;
 }
+
 .student-color:hover{
 	background-color: #20C2AA;
 }
+
 .form-group{
 	padding: 0;
 	margin: 0;
-}
-
-.hideShowPassword-toggle-hide {
-    background-position: -44px center !important;
-}
-
-#content-center{
-	width: 60%;
-	margin: 0 auto;
 }
 
 input[type="text"]{
@@ -78,13 +77,11 @@ input[type="text"]{
 	margin-right: 5px;
 	overflow: hidden;
 	font-size: 10px;
+	color: #000;
 }
 
 .form-control{
 	border-radius: 0 !important;
-}
-.container {
-	width: 100%;
 }
 
 .footer_controls{
