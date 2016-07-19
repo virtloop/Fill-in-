@@ -140,8 +140,7 @@ App.Views.Teacher = Backbone.View.extend({
 		"use strict";
 		$('.footer_controls').html('<button id="preview" title="Preview Mode" class="btn btn-default"></button><div class="button_group col-md-4"></div>');
 		$.each(btnsObj, function (){
-			
-			$('.button_group').append('<buttons class="'+ this.class +'" >'+this.name+'</buttons>');
+			$('.button_group').append('<buttons class="'+ this.class +'" id="'+this.id+'">'+this.name+'</buttons>');
 		});
 	},
 
@@ -152,8 +151,9 @@ App.Views.Teacher = Backbone.View.extend({
 							{ key: 'type', value: 'text' },
 							{ key: 'class', value: 'form-control' },
 							{ key: 'id', value: 'instr_teacher' },
-							{ key: 'placeholder', value: 'Type here the work instruction' },
+							{ key: 'placeholder', value: App.model_default.get('instr_text') == '' ? 'Type here the work instruction' : '' },
 							{ key: 'autocomplete', value: 'off' },
+							{ key: 'value', value: App.model_default.get('instr_text') }
 						]
 
 		$(container).append('<div class="instr form-group"><input/></div>')
@@ -194,7 +194,6 @@ App.Views.Teacher = Backbone.View.extend({
 
 	saveInstr: function (e) {
 		"use strict";
-		alert($(e.currentTarget).val())
 		App.model_default.set( 'instr_text', $(e.currentTarget).val() );
 	},
 
@@ -207,7 +206,6 @@ App.Views.Teacher = Backbone.View.extend({
 	addBlank: function (e) {
 		"use strict";
 		this.countClick++;
-
 		var sel = window.getSelection(), range;
 		var html = '<input id="blank'+ this.countClick + '" class="blank" data-id="'+this.countClick+'">';
 		//stackoverflow
@@ -381,8 +379,6 @@ App.Views.Student = Backbone.View.extend({
 				score = 10 - ( ( this.attempt - this.currentAttempt )/this.attempt );
 
 				this.openPopup('Correct', score);
-
-				//alert('Your score is: ' + score);
 				$('#check').hide();
 			}
 		}else{
