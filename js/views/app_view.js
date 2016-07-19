@@ -10,19 +10,30 @@ App.Views.App = Backbone.View.extend({
 		'click #preview': 'preview_mode' 
 	},
 
-	toggleModeBtn:  $('#preview'),
-
 	title_container: $('#page-title'),
 
 	MODE: {
 		init_mode: true,
+
 		teacher: {
+			'selector': $('#teacher_view'),
 			'title': 'Teacher View',
-			'color_class' : 'teacher-color'
+			'color_class' : 'teacher-color',
+			'buttons' : [
+				{name:'New Input', id:'new', class: 'btn btn-primary'},
+				{name:'Delete Input', id:'remove', class: 'btn btn-danger'}
+			],
 		},
+
 		student: {
+			'selector': $('#student_view'),
 			'title': 'Student View',
-			'color_class' : 'student-color'
+			'color_class' : 'student-color',
+			'buttons' : [
+				{name:'Solution', id:'view_solution', class: 'btn btn-primary disabled'},
+				{name:'Check', id:'check', class: 'btn btn-primary'},
+				{name:'Retry', id:'retry', class: 'btn btn-primary hide'}
+			],
 		}
 	},
 
@@ -33,10 +44,12 @@ App.Views.App = Backbone.View.extend({
 		var teacherView = new App.Views.Teacher({collection: App.solutions});
 		this.title_container.html(teacherView.title).addClass(this.MODE.teacher.color_class);
 
-		teacherView.render();
-	},
+		console.log(App.model)
 
-	
+		teacherView.render();
+		$('.button_group').html('');
+		this.writeButtons(this.MODE.teacher.buttons);
+	},
 
 	preview_mode: function (e) {
 		"use strict";
@@ -47,21 +60,41 @@ App.Views.App = Backbone.View.extend({
 			e.preventDefault();
 			var studentView = new App.Views.Student({collection: App.solutions});
 			studentView.render();
-			
+			this.MODE.teacher.selector.html('');
+
+			//changing page title
 			this.title_container.html(studentView.title).removeClass(this.MODE.teacher.color_class).addClass(this.MODE.student.color_class);
+			$('.button_group').html('');
+
+			//writing buttons
+			this.writeButtons(this.MODE.student.buttons);
 			$('#preview').addClass('hideShowPassword-toggle-hide').attr('title', 'Edit Mode');
+
 		} else {
 			var teacherView = new App.Views.Teacher({collection: App.solutions});
 			
 			teacherView.render();
+			this.MODE.student.selector.html('');
+
+			//changing page title
 			this.title_container.html(teacherView.title).removeClass(this.MODE.student.color_class).addClass(this.MODE.teacher.color_class);
+			$('.button_group').html('');
+
+			//writing buttons
+			this.writeButtons(this.MODE.teacher.buttons);
 			$('#preview').removeClass('hideShowPassword-toggle-hide').attr('title', 'Preview Mode');
 		}
-		
 	},
 
-	
+	writeButtons: function (btnsObj) {
+		"use strict";
+		$('.footer_controls').html('<button id="preview" title="Preview Mode" class="btn btn-default"></button><div class="button_group col-md-4"></div>');
 
+		$.each(btnsObj, function (){
+			
+			$('.button_group').append('<buttons class="'+ this.class +'" >'+this.name+'</buttons>');
+		});
+	}
 });
 
 
@@ -87,9 +120,7 @@ App.Views.Teacher = Backbone.View.extend({
 		"use strict";
 		this.writeInstrInput(this.container);
 		this.writeTextArea(this.container);
-		var text_placeholder = $('#sentence').attr('data-placeholder');
-		$('#student_view').html('');
-		$('#sentence').text(text_placeholder);
+		
 
 	},
 
@@ -106,35 +137,35 @@ App.Views.Teacher = Backbone.View.extend({
 
 		$(container).append('<div class="instr form-group"><input/></div>')
 
-		$.each(inputAttr, function(){
+		$.each( inputAttr, function(){
 			
 			$('.instr input').attr(this.key, this.value);
-		});
+		} );
 
 	}, 
 
-	writeTextArea: function (container, placeholder) {
+	writeTextArea: function (container) {
 		"use strict";
 		var textareaAttr = [
 								{ key: 'class', value: 'form-control' },
 								{ key: 'data-placeholder', value: 'Start typing here the text. Add blanks using New Input button bellow' },
 								{ key: 'id', value: 'sentence' },
 								{ key: 'contenteditable', value: 'true' }
-
-						   ]
-
+						   ];
+		var text_placeholder;
 		$(container).append('<div class="sentence form-group"><div></div></div>');
 
 		$.each(textareaAttr, function(){
 			$('.sentence div').attr(this.key, this.value);
-
+			
+			if(this.key === 'data-placeholder'){
+				$('.sentence div').text(this.value);
+			}
 		});
 	},
 
 	saveSentence: function () {
 		"use strict";
-
-
 	},
 
 	addBlank: function (e) {
@@ -246,7 +277,7 @@ App.Views.Student = Backbone.View.extend({
 		'use strict';
 		var sentence = '';
 		
-		if($('#instr_teacher').val() !== '') {
+		if( $('#instr_teacher').val() !== '' ) {
 			$('#student_view').append('<p class="instr"><strong>'+ $('#instr_teacher').val() +'</strong></p>');
 		}
 
@@ -257,8 +288,9 @@ App.Views.Student = Backbone.View.extend({
 		}else{
 			$('#student_view').append('There is no text to show');
 		}
-		$('#teacher_view').html('');
-		if($('#student_view').is(':visible')){
+		//$('#teacher_view').html('');
+		/*if($('#student_view').is(':visible')){
+			$('.footer_controls').addClass('pull-right');
 			//$('#student_view').append('<div class="footer_controls pull-right"></div>');
 			$('.button_group').html('');
 			$('.button_group').append('<button title="Preview Mode" id="preview" class="btn btn-default"></button>');
@@ -266,7 +298,7 @@ App.Views.Student = Backbone.View.extend({
 			$('.button_group').append('<button class="btn btn-primary student-color" id="check">Check</button>');
 			$('.button_group').append('<button class="btn btn-primary student-color" id="retry">Retry</button>');
 			$('#retry').hide();
-		}
+		}*/
 	},
 
 	check_response: function () {

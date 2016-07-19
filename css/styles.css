@@ -80,7 +80,7 @@ input[type="text"]{
 	color: #000;
 }
 
-.form-control{
+.form-control, .btn{
 	border-radius: 0 !important;
 }
 
@@ -95,13 +95,22 @@ input[type="text"]{
 	float: left;
 }
 
+.button_group{
+    text-align: right;
+    float: right;
+}
+
 .button_group.col-md-4{
 	padding: 0 !important;
 	text-align: right;
 }
 
-button {
-	border-radius: 0 !important;
+.button_group > .btn{
+	margin-right: 5px;
+}
+
+.button_group > .btn:last-child{
+	margin-right:0;
 }
 
 #student_view > p {

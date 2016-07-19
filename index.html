@@ -42,7 +42,8 @@
 	        	<div id="teacher_view"></div>
 	       		<div id="student_view"></div>
 	       		<div class="footer_controls">
-       				<select class="custom-select col-md-8" id="attempts">
+	       			<button id="preview" title="Preview Mode" class="btn btn-default"></button>
+       				<!-- <select class="custom-select col-md-8" id="attempts">
        					<option value="0">Attempts</option>
        					<option value="1">1</option>
        					<option value="2">2</option>
@@ -55,7 +56,7 @@
        					<button id="preview" title="Preview Mode" class="btn btn-default"></button>
        					<button class="btn btn-primary" id="new">New Input</button>
        					<button class="btn btn-danger" id="remove">Delete Input</button>
-       				</div>
+       				</div> -->
        			</div>
 	        </div>
 	    </div>
@@ -97,7 +98,7 @@
 
 			App.solutions = new App.Collections.Solutions;
 			App.model = new App.Models.Solution;
-			new App.Views.App({collection: App.solutions});
+			new App.Views.App({collection: App.solutions, model: App.model});
 			
 		</script>
 	</body>
