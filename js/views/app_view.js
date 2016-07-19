@@ -102,7 +102,9 @@ App.Views.Teacher = Backbone.View.extend({
 		'click #new' : 'addBlank',
 		'click #remove' : 'removeBlank',
 		'focusout #teacher_view .blank': 'addSolution',
-		'blur #sentence': 'saveSentence'
+		'blur #sentence': 'saveSentence',
+		'blur #instr_teacher': 'saveInstr',
+		'change #attempts': 'saveNoAttempts'
 	},
 
 	render: function (btnObj) {
@@ -118,12 +120,17 @@ App.Views.Teacher = Backbone.View.extend({
 		var i, selectContainer;
 		$(container).append('<select id="attempts" class="custom-select"></select>');
 		selectContainer = $('#attempts');
-
+		
 		for( i = 0; i <= no_attempts; i++){
 			if( i === 0 ) {
 				selectContainer.append('<option value="'+ i +'">Attempts</option>');
 			}else{
-				selectContainer.append('<option value="'+ i +'">'+i+'</option>');	
+				if(App.model_default.get('choosen_attempt') === i ){
+					selectContainer.append('<option value="'+ i +'" selected>'+i+'</option>');	
+				}else{
+					selectContainer.append('<option value="'+ i +'">'+i+'</option>');	
+				}
+				
 			}
 			
 		}
@@ -177,9 +184,24 @@ App.Views.Teacher = Backbone.View.extend({
 			}
 		});
 	},
-
-	saveSentence: function () {
+	
+	saveNoAttempts: function (e) {
 		"use strict";
+		
+		App.model_default.set( 'choosen_attempt', parseInt( $(e.currentTarget).val() ) );
+
+	},
+
+	saveInstr: function (e) {
+		"use strict";
+		alert($(e.currentTarget).val())
+		App.model_default.set( 'instr_text', $(e.currentTarget).val() );
+	},
+
+	saveSentence: function (e) {
+		"use strict";
+		App.model_default.set( 'sentence_text', $(e.currentTarget).html() );
+
 	},
 
 	addBlank: function (e) {
