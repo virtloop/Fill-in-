@@ -45,11 +45,8 @@ App.Views.App = Backbone.View.extend({
 		this.title_container.html(teacherView.title).addClass(this.MODE.teacher.color_class);
 		
 		teacherView.render(this.MODE.teacher.buttons);
-		
 	},
 	
-	
-
 	preview_mode: function (e) {
 		"use strict";
 
@@ -81,8 +78,7 @@ App.Views.App = Backbone.View.extend({
 
 			$('#preview').removeClass('hideShowPassword-toggle-hide').attr('title', 'Preview Mode');
 		}
-	},
-
+	}
 	
 });
 
@@ -130,9 +126,7 @@ App.Views.Teacher = Backbone.View.extend({
 				}else{
 					selectContainer.append('<option value="'+ i +'">'+i+'</option>');	
 				}
-				
 			}
-			
 		}
 	},
 
@@ -180,7 +174,11 @@ App.Views.Teacher = Backbone.View.extend({
 			$('.sentence div').attr(this.key, this.value);
 			
 			if(this.key === 'data-placeholder'){
-				$('.sentence div').text(this.value);
+				if(App.model_default.get('sentence_text') !== ''){
+					$('.sentence div').html(App.model_default.get('sentence_text'));	
+				}else{
+					$('.sentence div').text(this.value);
+				}
 			}
 		});
 	},
@@ -251,6 +249,7 @@ App.Views.Teacher = Backbone.View.extend({
 		
 		if( this.focused === null ){
 			$('#blank' + this.countClick).remove();
+			this.collection.remove(this.countClick);
 			this.countClick--;
 			$('#blank' + this.countClick).focus();
 		}else{
@@ -269,20 +268,21 @@ App.Views.Teacher = Backbone.View.extend({
 		"use strict";
 		e.preventDefault();
 		var solutionId = $( e.currentTarget ).attr( 'data-id' );
-		var blankId = $( e.currentTarget ).attr( 'id' );
+		var blankId = $( e.currentTarget );
 
-		var solutionArray = this.solutionMgr($( '#blank' + solutionId ).val());
+		var solutionArray = this.solutionMgr( blankId.val() );
 
-		//am presupus ca profesorul nu va gresi cand va adauga solutiile...
-		if( $( '#blank' + solutionId ).val() !== '' ){
-			this.collection.add({
-				id: solutionId,
-				solution: solutionArray
-			});
+		
+		if( blankId.val() !== '' ) {
+			this.collection.add( {
+				solution: {
+					id: solutionId,
+					value: solutionArray	
+				}
+			} );
 		}
 	}
 });
-
 
 
 /** 
@@ -337,7 +337,7 @@ App.Views.Student = Backbone.View.extend({
 	check_response: function () {
 		"use strict";
 		var i, j, solObj, answer, eval_sentence = true, score;
-
+		console.log(App.solutions.toJSON)
 		App.solutions.each(function(){
 			
 			solObj = App.solutions.toJSON();
