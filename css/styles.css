@@ -120,6 +120,7 @@ input[type="text"]{
 #student_view .instr{
 	border: 1px solid #ccc;
     padding: 8px 5px;
+    font-weight: bold;
 }
 
 #student_view .sentence{

@@ -49,33 +49,29 @@ App.Views.App = Backbone.View.extend({
 	
 	preview_mode: function (e) {
 		"use strict";
-
+		e.preventDefault();
+		e.stopPropagation();
 		this.MODE.init_mode = !this.MODE.init_mode;
 
 		if( !this.MODE.init_mode ) {
 			e.preventDefault();
 			$('.button_group').html('');
-			var studentView = new App.Views.Student({collection: App.solutions});
+			var studentView = new App.Views.Student({collection: App.solutions, model_settings: App.model_default});
 			studentView.render(this.MODE.student.buttons);
 			this.MODE.teacher.selector.html('');
 
 			//changing page title
 			this.title_container.html(studentView.title).removeClass(this.MODE.teacher.color_class).addClass(this.MODE.student.color_class);
-			
-			
 			$('#preview').addClass('hideShowPassword-toggle-hide').attr('title', 'Edit Mode');
 
 		} else {
 			$('.button_group').html('');
-			var teacherView = new App.Views.Teacher({collection: App.solutions});
-			
-			teacherView.render(this.MODE.teacher.buttons);
+			var teacherView = new App.Views.Teacher({collection: App.solutions, model_settings: App.model_default});
 			this.MODE.student.selector.html('');
-
+			teacherView.render(this.MODE.teacher.buttons);
+			
 			//changing page title
 			this.title_container.html(teacherView.title).removeClass(this.MODE.student.color_class).addClass(this.MODE.teacher.color_class);
-			
-
 			$('#preview').removeClass('hideShowPassword-toggle-hide').attr('title', 'Preview Mode');
 		}
 	}
@@ -91,24 +87,30 @@ App.Views.Teacher = Backbone.View.extend({
 	title: 'teacher view',
 	container: $('#teacher_view'),
 	countClick : 0,
+	blanksArray: [],
 	focused: null,
 	events: {
 		'focusin .blank': 'focusedBlank',
-		'focusout .blank': 'losefocusedBlank',
-		'click #new' : 'addBlank',
+		'click .footer_controls > .button_group > #new' : 'addBlank',
 		'click #remove' : 'removeBlank',
 		'focusout #teacher_view .blank': 'addSolution',
-		'blur #sentence': 'saveSentence',
-		'blur #instr_teacher': 'saveInstr',
+		'focusout #sentence': 'saveSentence',
+		'focusout #instr_teacher': 'saveInstr',
 		'change #attempts': 'saveNoAttempts'
 	},
 
+	initialize: function () {
+
+	},
+	
 	render: function (btnObj) {
 		"use strict";
+		
 		this.writeInstrInput(this.container);
 		this.writeTextArea(this.container);
 		this.writeButtons(btnObj);
 		this.writeSelectAttempts( $('.footer_controls'), App.model_default.get('max_attempts') );
+		
 	},
 
 	writeSelectAttempts: function ( container, no_attempts ) {
@@ -121,10 +123,10 @@ App.Views.Teacher = Backbone.View.extend({
 			if( i === 0 ) {
 				selectContainer.append('<option value="'+ i +'">Attempts</option>');
 			}else{
+				
+				selectContainer.append('<option value="'+ i +'">'+i+'</option>');
 				if(App.model_default.get('choosen_attempt') === i ){
-					selectContainer.append('<option value="'+ i +'" selected>'+i+'</option>');	
-				}else{
-					selectContainer.append('<option value="'+ i +'">'+i+'</option>');	
+					$('option').last().attr('selected','selected');
 				}
 			}
 		}
@@ -201,19 +203,15 @@ App.Views.Teacher = Backbone.View.extend({
 
 	},
 
-	addBlank: function (e) {
+	pasteHtmlAtCaret: function(html, el) {
 		"use strict";
-		this.countClick++;
-		var sel = window.getSelection(), range;
-		var html = '<input id="blank'+ this.countClick + '" class="blank" data-id="'+this.countClick+'">';
-		//stackoverflow
-		if( sel ){
-			//debugger
+	    var sel = window.getSelection(), range;
+	   	if( sel ){
 			if ( sel.getRangeAt && sel.rangeCount ) {
 				range = sel.getRangeAt(0);
             	range.deleteContents();
 
-            	var el = document.createElement("div");
+            	var el = document.createElement("span");
             	el.innerHTML = html;
             	var frag = document.createDocumentFragment(), node, lastNode;
 	            while ( (node = el.firstChild) ) {
@@ -233,28 +231,36 @@ App.Views.Teacher = Backbone.View.extend({
 			}
 		}
 
-		$('#blank' + this.countClick).focus();
+	},
+
+	addBlank: function (e) {
+		"use strict";
+		e.preventDefault();
+		e.stopPropagation();
+
+		App.model_default.set('number_of_blanks', App.model_default.get('number_of_blanks')+1 );
+		var count =  App.model_default.get('number_of_blanks');
+		
+		this.blanksArray.push('blank' + count);
+		App.model_default.set({'blanksIDs':this.blanksArray});
+
+
+		var html = '<input id="blank'+ count + '" class="blank" data-id="'+count+'">';
+		var el = document.getElementById("sentence");
+    	this. pasteHtmlAtCaret(html, el);
+
+		$('#blank' + count).focus();
+
 	},
 
 	focusedBlank: function (e) {
 		this.focused = e.currentTarget;
 	},
 
-	losefocusedBlank: function () {
-		this.focused = null;
-	},
-	
 	removeBlank: function () {
 		"use strict";
-		
-		if( this.focused === null ){
-			$('#blank' + this.countClick).remove();
-			this.collection.remove(this.countClick);
-			this.countClick--;
-			$('#blank' + this.countClick).focus();
-		}else{
-			this.focused.remove();	
-		}
+		this.focused.remove();
+		this.collection.remove($(this.focused).attr('data-id'));
 	},
 
 	solutionMgr: function (array) {
@@ -271,14 +277,11 @@ App.Views.Teacher = Backbone.View.extend({
 		var blankId = $( e.currentTarget );
 
 		var solutionArray = this.solutionMgr( blankId.val() );
-
 		
 		if( blankId.val() !== '' ) {
 			this.collection.add( {
-				solution: {
-					id: solutionId,
-					value: solutionArray	
-				}
+				id: solutionId,
+				value: solutionArray
 			} );
 		}
 	}
@@ -293,11 +296,23 @@ App.Views.Student = Backbone.View.extend({
 	el: '#content',
 	title: 'student view',
 	template: template('feedback_modal'),
+	HTML: {
+		instruction: {
+			tag: 'p',
+			class: 'instr'
+		},
+		sentence: {
+			tag: 'p',
+			class: 'sentence'
+		}
+	},
+	container: $('#student_view'),
 	attempt: 0,
 	currentAttempt: 0,
+	model_settings: {},
 	events: {
 		'click #check': 'check_response',
-		'change #attempts': 'get_attempts_value',
+		//'change #attempts': 'get_attempts_value',
 		'click #retry': 'retry_answer',
 		'click #view_solution': 'showSolution'
 	},
@@ -307,9 +322,15 @@ App.Views.Student = Backbone.View.extend({
 		this.attempt = this.currentAttempt = $(e.currentTarget).val();
 	},
 
+	initialize: function (){
+		this.model_settings = App.model_default.toJSON();
+		console.log(this.model_settings);
+	},
+
 	render: function(btnObj) {
 		'use strict';
-		var sentence = '';
+		//console.log(this.model_settings.toJSON());
+		/*var sentence = '';
 		if( $('#instr_teacher').val() !== '' ) {
 			$('#student_view').append('<p class="instr"><strong>'+ $('#instr_teacher').val() +'</strong></p>');
 		}
@@ -320,24 +341,55 @@ App.Views.Student = Backbone.View.extend({
 			$('#student_view').append('<p class="sentence">'+ $('#sentence').html() +'</p>');	
 		}else{
 			$('#student_view').append('There is no text to show');
-		}
-		this.writeButtons(btnObj);
+		}*/
+
+		this.writeInstr(this.container);
+
+		this.writeStudentModeSentence(this.container);
+
+		this.writeStudentButtons(btnObj);
 	},
 
-	writeButtons: function (btnsObj) {
+	writeInstr: function (container){
+		"use strict";
+		var htmlTag = '', instrOpts;
+		if(this.model_settings.instr_text === ''){
+			return;
+		}
+		instrOpts = this.HTML.instruction;
+
+		htmlTag += '<' + instrOpts.tag + ' class="'+instrOpts.class+'">' + this.model_settings.instr_text + '</' + instrOpts.tag + '>';
+
+		container.append(htmlTag);
+	},
+
+
+	writeStudentModeSentence: function (container){
+		"use strict";
+		var htmlTag = '', sentenceOpts;
+		if(this.model_settings.sentence_text === ''){
+			return;
+		}
+		sentenceOpts = this.HTML.sentence;
+
+		htmlTag += '<' + sentenceOpts.tag + ' class="'+sentenceOpts.class+'">' + this.model_settings.sentence_text + '</' + sentenceOpts.tag + '>';
+
+		container.append(htmlTag);
+	},
+
+	writeStudentButtons: function (btnsObj) {
 		"use strict";
 		$('.footer_controls').html('<button id="preview" title="Preview Mode" class="btn btn-default"></button><div class="button_group col-md-4"></div>');
 
 		$.each(btnsObj, function (){
-			
-			$('.button_group').append('<buttons class="'+ this.class +'" >'+this.name+'</buttons>');
+			$('.button_group').append('<buttons class="'+ this.class +'" id="'+this.id+'">'+this.name+'</buttons>');
 		});
 	},
 
 	check_response: function () {
 		"use strict";
 		var i, j, solObj, answer, eval_sentence = true, score;
-		console.log(App.solutions.toJSON)
+		
 		App.solutions.each(function(){
 			
 			solObj = App.solutions.toJSON();
@@ -345,9 +397,9 @@ App.Views.Student = Backbone.View.extend({
 			for(i = 0; i < solObj.length; i++ ) {
 
 				answer = $('#student_view #blank' + solObj[i].id).val();
-				if(solObj[i].solution.length > 1){
-					for( j = 0; j < solObj[i].solution.length; j++ ) {
-						if(solObj[i].solution[j] == answer){
+				if(solObj[i].value.length > 1){
+					for( j = 0; j < solObj[i].value.length; j++ ) {
+						if(solObj[i].value[j] == answer){
 							$('#student_view #blank' + solObj[i].id).addClass('correctAnswer');
 							break;
 						}else{
@@ -355,7 +407,7 @@ App.Views.Student = Backbone.View.extend({
 						}
 					}
 				}else{
-					if(solObj[i].solution == answer){
+					if(solObj[i].value == answer){
 						$('#student_view #blank' + solObj[i].id).addClass('correctAnswer');	
 					}else{
 						$('#student_view #blank' + solObj[i].id).addClass('wrongAnswer');
@@ -372,24 +424,24 @@ App.Views.Student = Backbone.View.extend({
 			});
 
 			if(!eval_sentence){
-				$('#check').hide();
-				$('#retry').show();
+				$('#check').addClass('hide');
+				$('#retry').removeClass('hide');
 				this.currentAttempt--;
 			}else{
 				score = 10 - ( ( this.attempt - this.currentAttempt )/this.attempt );
 
 				this.openPopup('Correct', score);
-				$('#check').hide();
+				('#check').addClass('hide');
 			}
 		}else{
 			$('#view_solution').removeClass('disabled');
-			$('#check').hide();
+			$('#check').addClass('hide');
 		}
 	},
 
 	retry_answer: function () {
-		$('#check').show();
-		$('#retry').hide();
+		$('#check').removeClass('hide');
+		$('#retry').addClass('hide');
 		$('#student_view .blank').val('');
 
 		$('#student_view .blank').each(function () {
@@ -416,23 +468,14 @@ App.Views.Student = Backbone.View.extend({
 		App.solutions.each(function(){
 				
 				solObj = App.solutions.toJSON();
-				console.log(solObj)
+				
 				for(i = 0; i < solObj.length; i++ ) {
 					answer = $('#student_view #blank' + solObj[i].id).val();
-					for( j = 0; j < solObj[i].solution.length; j++ ) {
+					for( j = 0; j < solObj[i].value.length; j++ ) {
 						
-						$('#student_view #blank' + solObj[i].id).val(solObj[i].solution);
+						$('#student_view #blank' + solObj[i].id).val(solObj[i].value);
 					}
 				}
 			});
 	}	
 });
-
-/** 
-	Solution View
-
-
-App.Views.Solution = Backbone.View.extend({
-	el: 'div'
-
-});**/
