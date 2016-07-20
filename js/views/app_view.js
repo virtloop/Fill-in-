@@ -317,9 +317,11 @@ App.Views.Student = Backbone.View.extend({
 		'click #view_solution': 'showSolution'
 	},
 
-	get_attempts_value: function (e){
+	remaining_attempts: function (){
 		"use strict";
-		this.attempt = this.currentAttempt = $(e.currentTarget).val();
+		
+		this.current_attempt = this.model_settings.choosen_attempt--;
+		return this.current_attempt;
 	},
 
 	initialize: function (){
@@ -415,8 +417,8 @@ App.Views.Student = Backbone.View.extend({
 				}	
 			}
 		});
-
-		if(this.currentAttempt > 1){
+		console.log(this.remaining_attempts());
+		if(this.remaining_attempts() >= 0){
 			$('#student_view .blank').each(function(){
 				if( $(this).hasClass('wrongAnswer') ){
 					eval_sentence = false;
