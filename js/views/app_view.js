@@ -30,9 +30,9 @@ App.Views.App = Backbone.View.extend({
 			'title': 'Student View',
 			'color_class' : 'student-color',
 			'buttons' : [
-				{name:'Solution', id:'view_solution', class: 'btn btn-primary disabled'},
-				{name:'Check', id:'check', class: 'btn btn-primary'},
-				{name:'Retry', id:'retry', class: 'btn btn-primary hide'}
+				{name:'Solution', id:'view_solution', class: 'btn btn-primary disabled student-color', disabled:'disabled'},
+				{name:'Check', id:'check', class: 'btn btn-primary student-color'},
+				{name:'Retry', id:'retry', class: 'btn btn-primary hide student-color'}
 			],
 		}
 	},
@@ -301,7 +301,7 @@ App.Views.Teacher = Backbone.View.extend({
 		var solutionId = $( e.currentTarget ).attr( 'data-id' );
 		var blankId = $( e.currentTarget );
 
-		var solutionArray = this.solutionMgr( blankId.val() );
+		var solutionArray = this.solutionMgr( $.trim( blankId.val() ) );
 		
 		if( blankId.val() !== '' ) {
 
@@ -413,77 +413,65 @@ App.Views.Student = Backbone.View.extend({
 		$('.footer_controls').html('<button id="preview" title="Preview Mode" class="btn btn-default"></button><div class="button_group col-md-4"></div>');
 
 		$.each(btnsObj, function (){
-			$('.button_group').append('<buttons class="'+ this.class +'" id="'+this.id+'">'+this.name+'</buttons>');
+			$('.button_group').append('<button class="'+ this.class +'" id="'+this.id+'">'+this.name+'</button>');
 		});
 	},
-
-	loop_solutions: function (solObj) {
-		"use strict";
-		$.each(solObj, function(index){
-
-		});
-	},
-
 
 	check_response: function () {
 		"use strict";
-		var i, j, solObj, answer, eval_sentence = true, score;
+		var i, j, solObj, answer, eval_sentence = true, score, solutions, blank,blanksArray;
 		solObj = App.solutions.toJSON();
-		//this.loop_solutions(solObj);
 
 		$.each(solObj, function(index){
-			//console.log(solObj);
-			answer = $('#student_view #blank' + this.id).val();
 
-			//alert(this.id);
-
-
-		});
-		/*App.solutions.each(function(){
+			blank =  $('#student_view #blank' + this.id);
+			solutions = this.value;
+			answer = $.trim( blank.val() );
 			
-			solObj = App.solutions.toJSON();
-			
-			for(i = 0; i < solObj.length; i++ ) {
-
-				answer = $('#student_view #blank' + solObj[i].id).val();
-				if(solObj[i].value.length > 1){
-					for( j = 0; j < solObj[i].value.length; j++ ) {
-						if(solObj[i].value[j] == answer){
-							$('#student_view #blank' + solObj[i].id).removeClass('wrongAnswer').addClass('correctAnswer');
-							break;
-						}else{
-							$('#student_view #blank' + solObj[i].id).addClass('wrongAnswer');
-						}
-					}
+			$.each(solutions, function (key){
+				//debugger;
+				if(this == answer){
+					//correct answer
+					blank.addClass('correct').removeClass('wrong');
+					return false;
 				}else{
-					if(solObj[i].value == answer){
-						$('#student_view #blank' + solObj[i].id).addClass('correctAnswer');	
-					}else{
-						$('#student_view #blank' + solObj[i].id).addClass('wrongAnswer');
-					}	
-				}	
-			}
-		});*/
+					//wrong answer
+					blank.removeClass('correct').addClass('wrong');
+					
+				}
+			});
+		});
+		
 		if(this.remaining_attempts() < 1 || this.model_settings.choosen_attempt === 0 ){
 			this.view_solution_btn.removeClass('disabled');
-			this.check_btn.addClass('hide');
+			$('#check').addClass('hide');
+
+			if(eval_sentence){
+				score =  10 - ( ( 10 * this.currentAttempt ) / this.model_settings.choosen_attempt ) ;
+
+				this.openPopup('Correct', score);
+				$('#check').addClass('hide');
+				$('#view_solution').addClass('hide');
+			}
 			
 		}else{
 			$('#student_view .blank').each(function(){
-				if( $(this).hasClass('wrongAnswer') ){
+				if( $(this).hasClass('wrong') ){
 					eval_sentence = false;
 				}
 			});
-
+		
 			if(!eval_sentence){
-				this.check_btn.addClass('hide');
-				this.retry_btn.removeClass('hide');
+				$('#check').addClass('hide');
+				$('#retry').removeClass('hide');
 				
 			}else{
 				score =  10 - ( ( 10 * this.currentAttempt ) / this.model_settings.choosen_attempt ) ;
 
 				this.openPopup('Correct', score);
-				this.check_btn.addClass('hide');
+				$(this.check_btn).addClass('hide');
+				$('#check').addClass('hide');
+				$('#view_solution').addClass('hide');
 			}
 			this.currentAttempt++;
 		}
@@ -495,7 +483,7 @@ App.Views.Student = Backbone.View.extend({
 		$('#student_view .blank').val('');
 
 		$('#student_view .blank').each(function () {
-			$(this).removeClass('correctAnswer').removeClass('wrongAnswer');
+			$(this).removeClass('correct').removeClass('wrong');
 		});
 	},
 
