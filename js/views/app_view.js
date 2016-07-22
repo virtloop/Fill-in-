@@ -195,7 +195,12 @@ App.Views.Teacher = Backbone.View.extend({
 				if(App.model_default.get('sentence_text') !== ''){
 					$('.sentence div').html(App.model_default.get('sentence_text'));	
 					$.each(App.model_default.get('blanksIDs'), function(blank){
-						$('#' + App.model_default.get('blanksIDs')[blank]).val(collection[blank].value);
+						if( collection[blank].value.length > 1 ){
+							$('#' + App.model_default.get('blanksIDs')[blank]).val(collection[blank].value.join('|'));	
+						}else{
+							$('#' + App.model_default.get('blanksIDs')[blank]).val(collection[blank].value);	
+						}
+						
 					});
 				}else{
 					$('.sentence div').text(this.value);
