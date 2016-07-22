@@ -21,6 +21,19 @@ body {
     -moz-appearance: none;
     -webkit-appearance: none;
 }
+.errors > p, .errors > p:before {
+	font-style: italic;
+	color: #ff0000;
+	opacity: 0.8;
+}
+.errors > p:before{
+	content: '*';
+	
+}
+
+.error{
+	border: 1px solid #ff0000 !important;
+}
 
 .hideShowPassword-toggle-hide {
     background-position: -44px center !important;

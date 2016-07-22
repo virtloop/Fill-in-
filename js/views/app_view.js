@@ -9,7 +9,7 @@ App.Views.App = Backbone.View.extend({
 		
 		'click #preview': 'preview_mode' 
 	},
-
+	
 	title_container: $('#page-title'),
 
 	MODE: {
@@ -87,6 +87,7 @@ App.Views.Teacher = Backbone.View.extend({
 	title: 'teacher view',
 	container: $('#teacher_view'),
 	countClick : 0,
+	errors: [],
 	blanksArray: [],
 	focused: null,
 	events: {
@@ -105,12 +106,26 @@ App.Views.Teacher = Backbone.View.extend({
 	
 	render: function (btnObj) {
 		"use strict";
-		
+		this.container.empty();
 		this.writeInstrInput(this.container);
 		this.writeTextArea(this.container);
 		this.writeButtons(btnObj);
 		this.writeSelectAttempts( $('.footer_controls'), App.model_default.get('max_attempts') );
+		this.container.append('<div class="errors"></div>');
+	},
+
+	writeErrorsOnScreen: function (container, error){
+		"use strict";
+		var htmlError;
+		if(error.length === 0){
+			return;
+		}
+
 		
+		htmlError = '<p>'+error+'</p>';
+
+
+		container.html(htmlError);
 	},
 
 	writeSelectAttempts: function ( container, no_attempts ) {
@@ -170,6 +185,7 @@ App.Views.Teacher = Backbone.View.extend({
 								{ key: 'contenteditable', value: 'true' }
 						   ];
 		var text_placeholder;
+		var collection = this.collection.toJSON();
 		$(container).append('<div class="sentence form-group"><div></div></div>');
 
 		$.each(textareaAttr, function(){
@@ -178,11 +194,16 @@ App.Views.Teacher = Backbone.View.extend({
 			if(this.key === 'data-placeholder'){
 				if(App.model_default.get('sentence_text') !== ''){
 					$('.sentence div').html(App.model_default.get('sentence_text'));	
+					$.each(App.model_default.get('blanksIDs'), function(blank){
+						$('#' + App.model_default.get('blanksIDs')[blank]).val(collection[blank].value);
+					});
 				}else{
 					$('.sentence div').text(this.value);
 				}
 			}
 		});
+
+		
 	},
 	
 	saveNoAttempts: function (e) {
@@ -250,7 +271,7 @@ App.Views.Teacher = Backbone.View.extend({
     	this. pasteHtmlAtCaret(html, el);
 
 		$('#blank' + count).focus();
-
+		
 	},
 
 	focusedBlank: function (e) {
@@ -260,7 +281,7 @@ App.Views.Teacher = Backbone.View.extend({
 	removeBlank: function () {
 		"use strict";
 		this.focused.remove();
-		this.collection.remove($(this.focused).attr('data-id'));
+		this.collection.remove( $(this.focused).attr('data-id') );
 	},
 
 	solutionMgr: function (array) {
@@ -272,17 +293,35 @@ App.Views.Teacher = Backbone.View.extend({
 
 	addSolution: function (e) {
 		"use strict";
-		e.preventDefault();
 		var solutionId = $( e.currentTarget ).attr( 'data-id' );
 		var blankId = $( e.currentTarget );
 
 		var solutionArray = this.solutionMgr( blankId.val() );
 		
 		if( blankId.val() !== '' ) {
+
+			$.each(this.collection.toJSON(), function(index){
+				if(this.id === solutionId){
+					this.value = solutionArray;
+					
+					return;
+				}
+			});
 			this.collection.add( {
 				id: solutionId,
 				value: solutionArray
 			} );
+			
+			blankId.removeClass('error');
+			$('#preview').removeClass('disabled').removeProp('disabled');
+			this.errors = 0;
+			$('.errors').empty();
+		}else{
+			blankId.addClass('error');
+			$('#preview').addClass('disabled').attr('disabled','disabled');
+			this.errors = 'You must add a solution to highlighted blank';
+			
+			this.writeErrorsOnScreen($('.errors'), this.errors);
 		}
 	}
 });
@@ -306,13 +345,15 @@ App.Views.Student = Backbone.View.extend({
 			class: 'sentence'
 		}
 	},
+	check_btn: $('#check'),
+	view_solution_btn: $('#view_solution'),
+	retry_btn: $('#retry'),
 	container: $('#student_view'),
 	attempt: 0,
 	currentAttempt: 0,
 	model_settings: {},
 	events: {
 		'click #check': 'check_response',
-		//'change #attempts': 'get_attempts_value',
 		'click #retry': 'retry_answer',
 		'click #view_solution': 'showSolution'
 	},
@@ -320,30 +361,15 @@ App.Views.Student = Backbone.View.extend({
 	remaining_attempts: function (){
 		"use strict";
 		
-		this.current_attempt = this.model_settings.choosen_attempt--;
-		return this.current_attempt;
+		return parseInt( this.model_settings.choosen_attempt - this.currentAttempt );
 	},
 
 	initialize: function (){
 		this.model_settings = App.model_default.toJSON();
-		console.log(this.model_settings);
 	},
 
 	render: function(btnObj) {
 		'use strict';
-		//console.log(this.model_settings.toJSON());
-		/*var sentence = '';
-		if( $('#instr_teacher').val() !== '' ) {
-			$('#student_view').append('<p class="instr"><strong>'+ $('#instr_teacher').val() +'</strong></p>');
-		}
-
-		if($('#sentence').text() !== '' && $('#instr_teacher').val() !== ''){
-			$('.instr').after('<p class="sentence">'+ $('#sentence').html() +'</p>');
-		}else if($('#sentence').text() !== ''){
-			$('#student_view').append('<p class="sentence">'+ $('#sentence').html() +'</p>');	
-		}else{
-			$('#student_view').append('There is no text to show');
-		}*/
 
 		this.writeInstr(this.container);
 
@@ -369,9 +395,7 @@ App.Views.Student = Backbone.View.extend({
 	writeStudentModeSentence: function (container){
 		"use strict";
 		var htmlTag = '', sentenceOpts;
-		if(this.model_settings.sentence_text === ''){
-			return;
-		}
+		
 		sentenceOpts = this.HTML.sentence;
 
 		htmlTag += '<' + sentenceOpts.tag + ' class="'+sentenceOpts.class+'">' + this.model_settings.sentence_text + '</' + sentenceOpts.tag + '>';
@@ -388,11 +412,29 @@ App.Views.Student = Backbone.View.extend({
 		});
 	},
 
+	loop_solutions: function (solObj) {
+		"use strict";
+		$.each(solObj, function(index){
+
+		});
+	},
+
+
 	check_response: function () {
 		"use strict";
 		var i, j, solObj, answer, eval_sentence = true, score;
-		
-		App.solutions.each(function(){
+		solObj = App.solutions.toJSON();
+		//this.loop_solutions(solObj);
+
+		$.each(solObj, function(index){
+			//console.log(solObj);
+			answer = $('#student_view #blank' + this.id).val();
+
+			//alert(this.id);
+
+
+		});
+		/*App.solutions.each(function(){
 			
 			solObj = App.solutions.toJSON();
 			
@@ -402,7 +444,7 @@ App.Views.Student = Backbone.View.extend({
 				if(solObj[i].value.length > 1){
 					for( j = 0; j < solObj[i].value.length; j++ ) {
 						if(solObj[i].value[j] == answer){
-							$('#student_view #blank' + solObj[i].id).addClass('correctAnswer');
+							$('#student_view #blank' + solObj[i].id).removeClass('wrongAnswer').addClass('correctAnswer');
 							break;
 						}else{
 							$('#student_view #blank' + solObj[i].id).addClass('wrongAnswer');
@@ -416,9 +458,12 @@ App.Views.Student = Backbone.View.extend({
 					}	
 				}	
 			}
-		});
-		console.log(this.remaining_attempts());
-		if(this.remaining_attempts() >= 0){
+		});*/
+		if(this.remaining_attempts() < 1 || this.model_settings.choosen_attempt === 0 ){
+			this.view_solution_btn.removeClass('disabled');
+			this.check_btn.addClass('hide');
+			
+		}else{
 			$('#student_view .blank').each(function(){
 				if( $(this).hasClass('wrongAnswer') ){
 					eval_sentence = false;
@@ -426,30 +471,27 @@ App.Views.Student = Backbone.View.extend({
 			});
 
 			if(!eval_sentence){
-				$('#check').addClass('hide');
-				$('#retry').removeClass('hide');
-				this.currentAttempt--;
+				this.check_btn.addClass('hide');
+				this.retry_btn.removeClass('hide');
+				
 			}else{
-				score = 10 - ( ( this.attempt - this.currentAttempt )/this.attempt );
+				score =  10 - ( ( 10 * this.currentAttempt ) / this.model_settings.choosen_attempt ) ;
 
 				this.openPopup('Correct', score);
-				('#check').addClass('hide');
+				this.check_btn.addClass('hide');
 			}
-		}else{
-			$('#view_solution').removeClass('disabled');
-			$('#check').addClass('hide');
+			this.currentAttempt++;
 		}
 	},
 
 	retry_answer: function () {
-		$('#check').removeClass('hide');
-		$('#retry').addClass('hide');
+		this.check_btn.removeClass('hide');
+		this.retry_btn.addClass('hide');
 		$('#student_view .blank').val('');
 
 		$('#student_view .blank').each(function () {
 			$(this).removeClass('correctAnswer').removeClass('wrongAnswer');
 		});
-		
 	},
 
 	openPopup: function ( feedbackTitle, score ) {
@@ -469,15 +511,15 @@ App.Views.Student = Backbone.View.extend({
 
 		App.solutions.each(function(){
 				
-				solObj = App.solutions.toJSON();
-				
-				for(i = 0; i < solObj.length; i++ ) {
-					answer = $('#student_view #blank' + solObj[i].id).val();
-					for( j = 0; j < solObj[i].value.length; j++ ) {
-						
-						$('#student_view #blank' + solObj[i].id).val(solObj[i].value);
-					}
+			solObj = App.solutions.toJSON();
+			
+			for(i = 0; i < solObj.length; i++ ) {
+				answer = $('#student_view #blank' + solObj[i].id).val();
+				for( j = 0; j < solObj[i].value.length; j++ ) {
+					
+					$('#student_view #blank' + solObj[i].id).val(solObj[i].value);
 				}
-			});
+			}
+		});
 	}	
 });
